@@ -58,7 +58,15 @@ class Products with ChangeNotifier {
   //   _onlyIsFavourites = false;
   // }
 
-  void addProduct(Product newProduct) {
+  void addProduct(Product product) {
+    final newProduct = Product(
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      id: DateTime.now().toString(),
+    );
+
     _myProducts.add(newProduct);
     notifyListeners();
   }
