@@ -37,18 +37,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  FlatButton(
-                    onPressed: () {
-                      Provider.of<Orders>(context, listen: false).addOrder(
-                          cartProduct.items.values.toList(),
-                          cartProduct.totalAmount);
-                      cartProduct.clear();
-                    },
-                    child: Text(
-                      'ORDER NOW',
-                    ),
-                    textColor: Theme.of(context).primaryColor,
-                  ),
+                  OrderButton(cartProduct: cartProduct)
                 ],
               ),
             ),
@@ -67,6 +56,53 @@ class CartScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key key,
+    @required this.cartProduct,
+  }) : super(key: key);
+
+  final Cart cartProduct;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      child: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Text(
+              'ORDER NOW',
+            ),
+      textColor: Theme.of(context).primaryColor,
+      onPressed: (widget.cartProduct.totalAmount <= 0 || _isLoading)
+          ? null
+          : () async {
+              setState(() {
+                _isLoading = true;
+              });
+              await Provider.of<Orders>(context, listen: false).addOrder(
+                  widget.cartProduct.items.values.toList(),
+                  widget.cartProduct.totalAmount);
+              setState(() {
+                _isLoading = false;
+              });
+
+              widget.cartProduct.clear();
+            },
     );
   }
 }

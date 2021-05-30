@@ -21,14 +21,14 @@ class Product with ChangeNotifier {
     this.isFavourite = false,
   });
 
-  Future<void> toggleFavourite() async {
+  Future<void> toggleFavourite(String token) async {
     var oldValue = isFavourite;
     isFavourite = !isFavourite;
     notifyListeners();
-    final url = Uri.https(
-        'fluter-project-default-rtdb.firebaseio.com', '/products/$id.json');
+    final url =
+        'https://fluter-project-default-rtdb.firebaseio.com/products/$id.json?auth=$token';
     try {
-      final response = await http.patch(url,
+      final response = await http.patch(Uri.parse(url),
           body: json.encode({'isFavourite': isFavourite}));
       if (response.statusCode >= 400) {
         isFavourite = oldValue;
