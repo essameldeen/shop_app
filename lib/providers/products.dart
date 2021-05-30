@@ -5,8 +5,8 @@ import 'package:shop_app/models/http_exception.dart';
 import 'package:shop_app/providers/product.dart';
 
 class Products with ChangeNotifier {
-  final url =
-      Uri.https('fluter-project-default-rtdb.firebaseio.com', '/products.json');
+  String token;
+
   List<Product> _myProducts = [
     // Product(
     //   id: 'p1',
@@ -42,8 +42,12 @@ class Products with ChangeNotifier {
     // ),
   ];
 
+  Products(this.token, this._myProducts);
+
   // bool _onlyIsFavourites = false;
   Future<void> addInitValueInServer() async {
+    final url = Uri.https('fluter-project-default-rtdb.firebaseio.com',
+        '/products.json?auth=$token');
     _myProducts.forEach((element) async {
       final response = await http.post(url,
           body: json.encode({
@@ -68,10 +72,12 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchDataFromServer() async {
+    final url =
+        'https://fluter-project-default-rtdb.firebaseio.com/products.json?auth=$token';
     try {
-      final response = await http.get(url);
+      final response = await http.get(Uri.parse(url));
       final data = json.decode(response.body) as Map<String, dynamic>;
-
+      if (data == null) return;
       final List<Product> productsFromServer = [];
       data.forEach((prodId, productData) {
         productsFromServer.add(Product(
@@ -86,7 +92,6 @@ class Products with ChangeNotifier {
 
       _myProducts = productsFromServer;
       notifyListeners();
-      print(json.decode(response.body));
     } catch (error) {
       print(error);
       throw error;
@@ -94,8 +99,10 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
+    final url =
+        'https://fluter-project-default-rtdb.firebaseio.com/products.json?auth=$token';
     try {
-      final response = await http.post(url,
+      final response = await http.post(Uri.parse(url),
           body: json.encode({
             'title': product.title,
             'desc': product.description,
@@ -125,9 +132,9 @@ class Products with ChangeNotifier {
   Future<void> updateProduct(String id, Product productUpdated) async {
     final index = _myProducts.indexWhere((element) => element.id == id);
     if (index >= 0) {
-      final urlUpdate = Uri.https(
-          'fluter-project-default-rtdb.firebaseio.com', '/products/$id.json');
-      await http.patch(urlUpdate,
+      final urlUpdate =
+          'https://fluter-project-default-rtdb.firebaseio.com/products/$id.json?auth=$token';
+      await http.patch(Uri.parse(urlUpdate),
           body: json.encode({
             'title': productUpdated.title,
             'desc': productUpdated.description,
@@ -141,13 +148,13 @@ class Products with ChangeNotifier {
   }
 
   Future<void> removeProduct(String id) async {
-    final urldelete = Uri.https(
-        'fluter-project-default-rtdb.firebaseio.com', '/products/$id.json');
+    final urldelete =
+        'https://fluter-project-default-rtdb.firebaseio.com/products/$id.json?auth=$token';
     var productRemoved = findById(id);
     final index = _myProducts.indexWhere((element) => element.id == id);
     _myProducts.removeAt(index);
     notifyListeners();
-    final response = await http.delete(urldelete);
+    final response = await http.delete((Uri.parse(urldelete)));
     print(response.statusCode);
     if (response.statusCode >= 400) {
       _myProducts.insert(index, productRemoved);
