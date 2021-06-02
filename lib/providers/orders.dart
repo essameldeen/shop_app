@@ -20,8 +20,9 @@ class OrderItem {
 class Orders with ChangeNotifier {
   List<OrderItem> _items = [];
   final String token;
+  final String userId;
 
-  Orders(this.token, this._items);
+  Orders(this.token, this.userId, this._items);
 
   List<OrderItem> get items {
     return [..._items];
@@ -30,7 +31,7 @@ class Orders with ChangeNotifier {
   Future<void> fetchDataFromServer() async {
     final List<OrderItem> loadedOrder = [];
     final url =
-        'https://fluter-project-default-rtdb.firebaseio.com/orders.json?auth=$token';
+        'https://fluter-project-default-rtdb.firebaseio.com/orders/$userId.json?auth=$token';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -64,7 +65,7 @@ class Orders with ChangeNotifier {
 
   Future<void> addOrder(List<CartItem> products, double total) async {
     final url =
-        'https://fluter-project-default-rtdb.firebaseio.com/orders.json?auth=$token';
+        'https://fluter-project-default-rtdb.firebaseio.com/orders/$userId.json?auth=$token';
 
     final timeStamp = DateTime.now();
 
